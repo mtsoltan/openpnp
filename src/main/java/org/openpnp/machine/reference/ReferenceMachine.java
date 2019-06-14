@@ -35,6 +35,7 @@ import org.openpnp.machine.reference.camera.OnvifIPCamera;
 import org.openpnp.machine.reference.camera.OpenCvCamera;
 import org.openpnp.machine.reference.camera.OpenPnpCaptureCamera;
 import org.openpnp.machine.reference.camera.SimulatedUpCamera;
+import org.openpnp.machine.reference.camera.SwitcherCamera;
 import org.openpnp.machine.reference.camera.Webcams;
 import org.openpnp.machine.reference.driver.NullDriver;
 import org.openpnp.machine.reference.feeder.AdvancedLoosePartFeeder;
@@ -48,6 +49,7 @@ import org.openpnp.machine.reference.feeder.ReferenceTrayFeeder;
 import org.openpnp.machine.reference.feeder.ReferenceTubeFeeder;
 import org.openpnp.machine.reference.psh.ActuatorsPropertySheetHolder;
 import org.openpnp.machine.reference.psh.CamerasPropertySheetHolder;
+import org.openpnp.machine.reference.psh.NozzleTipsPropertySheetHolder;
 import org.openpnp.machine.reference.psh.SignalersPropertySheetHolder;
 import org.openpnp.machine.reference.signaler.ActuatorSignaler;
 import org.openpnp.machine.reference.signaler.SoundSignaler;
@@ -77,10 +79,6 @@ public class ReferenceMachine extends AbstractMachine {
 
     @Element(required = false)
     protected PnpJobProcessor pnpJobProcessor = new ReferencePnpJobProcessor();
-
-    @Deprecated
-    @Element(required = false)
-    protected PartAlignment partAlignment = null;
 
     @Element(required = false)
     protected FiducialLocator fiducialLocator = new ReferenceFiducialLocator();
@@ -118,11 +116,6 @@ public class ReferenceMachine extends AbstractMachine {
                          @Override
                          public void configurationLoaded(Configuration configuration)
                                  throws Exception {
-                             // move any single partAlignments into our list
-                             if (partAlignment != null) {
-                                 partAlignments.add(partAlignment);
-                                 partAlignment = null;
-                             }
                              if (partAlignments.isEmpty()) {
                                  partAlignments.add(new ReferenceBottomVision());
                              }
@@ -181,12 +174,13 @@ public class ReferenceMachine extends AbstractMachine {
         children.add(new SignalersPropertySheetHolder(this, "Signalers", getSignalers(), null));
         children.add(new SimplePropertySheetHolder("Feeders", getFeeders()));
         children.add(new SimplePropertySheetHolder("Heads", getHeads()));
+        children.add(new NozzleTipsPropertySheetHolder("Nozzle Tips", getNozzleTips(), null));
         children.add(new CamerasPropertySheetHolder(null, "Cameras", getCameras(), null));
         children.add(new ActuatorsPropertySheetHolder(null, "Actuators", getActuators(), null));
         children.add(
                 new SimplePropertySheetHolder("Driver", Collections.singletonList(getDriver())));
         children.add(new SimplePropertySheetHolder("Job Processors",
-                Arrays.asList(getPnpJobProcessor()/* , getPasteDispenseJobProcessor() */)));
+                Arrays.asList(getPnpJobProcessor())));
 
         List<PropertySheetHolder> vision = new ArrayList<>();
         for (PartAlignment alignment : getPartAlignments()) {
@@ -235,6 +229,7 @@ public class ReferenceMachine extends AbstractMachine {
         l.add(Webcams.class);
         l.add(OnvifIPCamera.class);
         l.add(ImageCamera.class);
+        l.add(SwitcherCamera.class);
         l.add(SimulatedUpCamera.class);
         return l;
     }
