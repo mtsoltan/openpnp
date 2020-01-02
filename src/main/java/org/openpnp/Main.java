@@ -117,6 +117,7 @@ public class Main {
         monkeyPatchBeansBinding();
         
         for (String s : args) {
+            // Prints the version and ignores all other arguments
             if (s.equals("--version")) {
                 System.out.println(getVersion());
                 System.exit(0);
